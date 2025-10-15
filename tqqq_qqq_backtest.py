@@ -371,7 +371,7 @@ def backtest(qqq: pd.DataFrame, tqqq: pd.DataFrame, vix: pd.DataFrame, spy: pd.D
 
     # Build per-year stats
     # Collate trades by year (by EXIT date if exists else by ENTRY year)
-    trades_df = pd.DataFrame([
+    trade_records = [
         {
             "entry_date": tr.entry_date,
             "entry_price": tr.entry_price,
@@ -387,7 +387,29 @@ def backtest(qqq: pd.DataFrame, tqqq: pd.DataFrame, vix: pd.DataFrame, spy: pd.D
             "holding_days": (tr.exit_date - tr.entry_date).days if tr.exit_date is not None else None,
         }
         for tr in trades
-    ])
+    ]
+
+    columns = [
+        "entry_date",
+        "entry_price",
+        "capital_at_entry",
+        "exit_date",
+        "exit_price",
+        "reason",
+        "reason_detailed",
+        "exit_reason",
+        "pnl_pct",
+        "pnl_usd",
+        "final_capital",
+        "holding_days",
+    ]
+
+    trades_df = pd.DataFrame(trade_records, columns=columns)
+
+    if "entry_date" in trades_df.columns:
+        trades_df["entry_date"] = pd.to_datetime(trades_df["entry_date"], errors="coerce")
+    if "exit_date" in trades_df.columns:
+        trades_df["exit_date"] = pd.to_datetime(trades_df["exit_date"], errors="coerce")
 
     # Benchmarks per year
     bench = {}
@@ -609,10 +631,19 @@ def main():
     print("Downloading data...")
     qqq, tqqq, vix, spy = fetch_data()
     print("Computing signals and backtest...")
+    if any(df.empty for df in (qqq, tqqq, vix, spy)):
+        print(
+            "No price data was downloaded for the requested date range. "
+            "Please ensure network access is available or adjust START_DATE/END_DATE."
+        )
+        return
     results_per_year, trades_df, bench = backtest(qqq, tqqq, vix, spy)
 
     # Today's Insight: show buy rules booleans and metrics for the latest date
     sig = compute_buy_signals(qqq, vix)
+    if sig.empty:
+        print("No signal data available after fetching prices; exiting without generating report.")
+        return
     last_dt = sig.index[-1]
     r1 = bool(sig.loc[last_dt, "rule1_two_red"]) if "rule1_two_red" in sig.columns else False
     r2 = bool(sig.loc[last_dt, "rule2_big_drop"]) if "rule2_big_drop" in sig.columns else False
