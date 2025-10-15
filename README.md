@@ -1,11 +1,6 @@
-# TQQQ Backtesting (Open-Only)
+# qqq-tqqq-strategy
 
 This repo contains a reproducible, open-only backtest for a TQQQ strategy using QQQ/VIX-based buy rules and simple sell rules. It prints a year-by-year report to the terminal and also generates a Markdown report (report.md).
-
-## What is __pycache__?
-- __pycache__ is created by Python to store compiled bytecode (.pyc) for faster imports.
-- It is safe to delete at any time; Python will regenerate it on the next run.
-- Typically it is ignored in version control via .gitignore.
 
 ## Features
 - Open-only signals and execution to avoid lookahead bias
