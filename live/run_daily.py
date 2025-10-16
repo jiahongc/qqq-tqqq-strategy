@@ -55,16 +55,17 @@ def main():
         else:
             actions.append("No BUY today")
     else:
-        # Consider sell at open >= target
-        # Note: We do not track entry price here; a robust version would persist entry
-        # For a simple implementation, sell when today's open is >= yesterday's open * (1+target)
-        # This approximates but is not exact without stored entry price.
-        tqqq_prev_open = float(opens["TQQQ"].iloc[-2]) if len(opens["TQQQ"]) >= 2 else None
-        if tqqq_prev_open is not None and tqqq_open_today >= tqqq_prev_open * (1.0 + PROFIT_TARGET_PCT):
-            order = client.market_sell("TQQQ", qty=tqqq_qty)
-            actions.append(f"SELL TQQQ qty={tqqq_qty} @ market: {order}")
+        # Consider sell using broker avg_entry_price for exact target check
+        entry = client.get_position_avg_entry_price("TQQQ")
+        if entry is not None:
+            target_price = entry * (1.0 + PROFIT_TARGET_PCT)
+            if tqqq_open_today >= target_price:
+                order = client.market_sell("TQQQ", qty=tqqq_qty)
+                actions.append(f"SELL TQQQ qty={tqqq_qty} @ market: {order}")
+            else:
+                actions.append("Holding; target not met")
         else:
-            actions.append("Holding; target not met")
+            actions.append("Holding; no entry price available")
 
     # Notifications
     subject = "qqq-tqqq-strategy daily"

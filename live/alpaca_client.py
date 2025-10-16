@@ -51,6 +51,13 @@ class AlpacaClient:
         except Exception:
             return 0.0
 
+    def get_position_avg_entry_price(self, symbol: str) -> Optional[float]:
+        try:
+            pos = self.api.get_position(symbol)
+            return float(pos.avg_entry_price)
+        except Exception:
+            return None
+
     def get_account_cash(self) -> float:
         acct = self.api.get_account()
         return float(acct.cash)
