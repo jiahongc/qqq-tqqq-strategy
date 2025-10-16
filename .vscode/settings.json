@@ -1,6 +1,0 @@
-{
-  "python.defaultInterpreterPath": "/Users/jiahongchen/Desktop/Coding/tqqq-backtesting/.venv/bin/python",
-  "python.analysis.diagnosticSeverityOverrides": {
-    "reportMissingImports": "information"
-  }
-}

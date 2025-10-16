@@ -17,8 +17,8 @@ venv/
 
 # OS / Editor
 .DS_Store
-# Track workspace settings to pin interpreter
-# .vscode/
+# Editor workspace settings
+.vscode/
 .idea/
 
 # Tool / test caches
